@@ -51,6 +51,47 @@ import Testing
     #expect(parser.positionalArguments() == ["dentist"])
 }
 
+@Test func parsesIntegerFlags() throws {
+    let parser = ArgumentParser(arguments: ["--limit", "3"])
+    #expect(try parser.intValue(for: "--limit") == 3)
+}
+
+@Test func detailOptionsDefaultToSummaryFields() throws {
+    let options = EventDetailOptions(parser: ArgumentParser(arguments: ["--json"]))
+    #expect(options.includeLocation == false)
+    #expect(options.includeNotes == false)
+    #expect(options.includeURL == false)
+}
+
+@Test func detailsFlagEnablesAllOptionalEventFields() throws {
+    let options = EventDetailOptions(parser: ArgumentParser(arguments: ["--details"]))
+    #expect(options.includeLocation)
+    #expect(options.includeNotes)
+    #expect(options.includeURL)
+}
+
+@Test func includeFlagsEnableSelectedOptionalEventFields() throws {
+    let options = EventDetailOptions(parser: ArgumentParser(arguments: ["--include-notes", "--include-url"]))
+    #expect(options.includeLocation == false)
+    #expect(options.includeNotes)
+    #expect(options.includeURL)
+}
+
+@Test func ambiguousCalendarErrorIncludesMatchesInDetails() throws {
+    let error = CLIError.ambiguousCalendar(
+        requested: "Personal",
+        matches: ["Personal [abc]", "Personal [def]"]
+    )
+    #expect(error.code == "ambiguous_calendar")
+    #expect(error.details == ["Personal [abc]", "Personal [def]"])
+}
+
+@Test func permissionDeniedErrorIncludesAuthorizationStateDetail() throws {
+    let error = CLIError.permissionDenied(.writeOnly)
+    #expect(error.code == "permission_denied")
+    #expect(error.details == ["authorization=write_only"])
+}
+
 @Test func searchMatcherHandlesExactPhrase() throws {
     let matches = SearchMatcher.matches(
         query: "calctl smoke 2026-04-06 01",

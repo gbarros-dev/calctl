@@ -33,8 +33,11 @@ If no selector is passed, `agenda` defaults to `--today`.
 - Reads require full calendar access.
 - Mutations also currently assume full access.
 - `doctor --request-access` is the only command that actively asks macOS for Calendar permission.
-- `--calendar` currently matches by exact calendar title.
+- Calendar selection accepts either `--calendar` for exact title matching or `--calendar-id` for exact identifier matching.
 - `search` defaults to a built-in search window of 30 days back through 365 days forward if no range flags are passed.
-- `update` and `delete` currently operate on single event identifiers only.
+- `agenda` and `search` accept `--limit N` to cap the sorted result set.
+- Event JSON omits `location`, `notes`, and `url` unless `--details` or the corresponding `--include-*` flag is present.
+- `add`, `update`, and `delete` accept `--dry-run` to preview the affected event.
+- `update` supports `--clear-location`, `--clear-notes`, and `--clear-url`.
+- `update` and `delete` require an explicit recurrence scope flag when the targeted event belongs to a recurring series.
 - EventKit mutation visibility can lag briefly after save/remove operations.
-- Recurring-event scope flags are not implemented yet.

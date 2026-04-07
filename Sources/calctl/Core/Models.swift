@@ -15,6 +15,42 @@ enum AuthorizationState: String, Codable {
     case unsupported
 }
 
+struct EventDetailOptions {
+    let includeLocation: Bool
+    let includeNotes: Bool
+    let includeURL: Bool
+
+    init(parser: ArgumentParser) {
+        let details = parser.contains("--details")
+        includeLocation = details || parser.contains("--include-location")
+        includeNotes = details || parser.contains("--include-notes")
+        includeURL = details || parser.contains("--include-url")
+    }
+
+    static let summary = EventDetailOptions(includeLocation: false, includeNotes: false, includeURL: false)
+
+    init(includeLocation: Bool, includeNotes: Bool, includeURL: Bool) {
+        self.includeLocation = includeLocation
+        self.includeNotes = includeNotes
+        self.includeURL = includeURL
+    }
+}
+
+struct CalendarSelector {
+    let name: String?
+    let id: String?
+
+    var isEmpty: Bool {
+        name == nil && id == nil
+    }
+}
+
+enum RecurrenceScope: String, Codable {
+    case thisEvent = "this_event"
+    case thisAndFuture = "this_and_future"
+    case entireSeries = "entire_series"
+}
+
 struct CalendarRecord: Codable {
     let id: String
     let title: String
@@ -46,10 +82,18 @@ struct MutationResponse: Codable {
     let event: EventRecord
 }
 
+struct MutationPreviewResponse: Codable {
+    let dryRun: Bool
+    let action: String
+    let event: EventRecord
+}
+
 struct DoctorReport: Codable {
     let backend: String
     let authorization: AuthorizationState
     let calendarCount: Int?
+    let writableCalendarCount: Int?
+    let readOnlyCalendarCount: Int?
     let calendars: [CalendarRecord]?
 }
 
@@ -75,4 +119,5 @@ struct ErrorEnvelope: Codable {
 struct ErrorRecord: Codable {
     let code: String
     let message: String
+    let details: [String]?
 }

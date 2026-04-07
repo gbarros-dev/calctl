@@ -17,6 +17,16 @@ struct ArgumentParser {
         return arguments[index + 1]
     }
 
+    func intValue(for flag: String) throws -> Int? {
+        guard let rawValue = try value(for: flag) else {
+            return nil
+        }
+        guard let parsed = Int(rawValue) else {
+            throw CLIError.invalidValue("Invalid integer for \(flag): \(rawValue)")
+        }
+        return parsed
+    }
+
     func positionalArguments() -> [String] {
         var result: [String] = []
         var skipNext = false
